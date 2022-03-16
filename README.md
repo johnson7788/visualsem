@@ -1,33 +1,34 @@
 # VisualSem Knowledge Graph
 
-VisualSem is a multilingual and multi-modal knowledge graph designed and curated to support research in vision and language.
-It is built using different publicly available resources (e.g., [Wikipedia](https://www.wikipedia.org), [ImageNet](http://www.image-net.org), [BabelNet v4.0](https://babelnet.org)) and it contains around 90k nodes, 1.5M tuples, and 1.3M glosses and 930k images associated to nodes.
+VisualSem是一种多语言、多模态的知识图谱，旨在支持视觉和语言方面的研究。
+它是使用不同的公共可用资源构建的 (e.g., [Wikipedia](https://www.wikipedia.org), [ImageNet](http://www.image-net.org), [BabelNet v4.0](https://babelnet.org)) 它包含约90k个节点、150万个元组、130万个注释和930k个与节点相关的图像。
 
 In a nutshell, VisualSem includes:
 
 - 89,896 nodes which are linked to Wikipedia articles, WordNet ids, and BabelNet ids.
 - 13 _visually relevant_ relation types: _is-a_, _has-part_, _related-to_, _used-for_, _used-by_, _subject-of_, _receives-action_, _made-of_, _has-property_, _gloss-related_, _synonym_, _part-of_, and _located-at_.
-- 1.5M tuples, where each tuple consists of a pair of nodes connected by a relation type.
+- 1.5M tuples, 其中每个元组由一对由关系类型连接的节点组成。
 - 1.3M glosses linked to nodes which are available in up to 14 different languages.
 - 930k images associated to nodes.
 
 
-## Downloading VisualSem
-
-VisualSem is publicly and fully available for researchers and is released under [BabelNet's non-commercial license](https://babelnet.org/license). We are not supported/endorsed by the BabelNet project in anyway. The only reason VisualSem is released with the same license as BabelNet is because it uses (among other tools) the BabelNet API in its construction and therefore we comply with the original license (see [BabelNet's license](https://babelnet.org/license) for details).
+## 下载 VisualSem
+VisualSem对研究人员来说是公开的、完全可用的，并以[BabelNet的非商业许可](https://babelnet.org/license)发布。
+我们没有得到BabelNet项目的任何支持/认可。VisualSem之所以与BabelNet采用相同的许可证发布，是因为它在构建过程中使用了（除其他工具外）BabelNet的API，因此我们遵守了原始许可证（详见[BabelNet的许可证]（https://babelnet.org/license））。
 
 - [nodes.v2.json](https://surfdrive.surf.nl/files/index.php/s/06AFB1LsJV9yt5N) (83MB): All nodes in VisualSem.
 - [tuples.v2.json](https://surfdrive.surf.nl/files/index.php/s/P37QRCWDJVRqcWG) (83MB): All tuples in VisualSem.
 - [glosses.v2.tgz](https://surfdrive.surf.nl/files/index.php/s/gQLULr5ElOEiafx) (125MB): All 1.5M glosses in 14 different languages.
 - [images.tgz](https://surfdrive.surf.nl/files/index.php/s/KXmZTm4hNaXoYfO) (31GB): All 1.5M images.
 
-In addition to the dataset files, you can also download pre-extracted features (used in retrieval experiments).
-- [glosses.sentencebert.v2.tgz](https://surfdrive.surf.nl/files/index.php/s/7PDiEKQapk4dhlW) (9.8GB): Sentence BERT features extracted for all glosses as well as gloss training/validation/test splits.
+除了数据集文件外，你还可以下载预先提取的特征（用于检索实验）。
+- [glosses.sentencebert.v2.tgz](https://surfdrive.surf.nl/files/index.php/s/7PDiEKQapk4dhlW) (9.8GB): 为所有词汇以及词汇训练/验证/测试分片提取的Sentence BERT特征。
 - [images_features_splits.tgz](https://surfdrive.surf.nl/files/index.php/s/nuzVxSfhSH91MSv) (82MB): Image training/validation/test splits.
 - [visualsem-image-features.valid.CLIP-RN50x4.npz](https://surfdrive.surf.nl/files/index.php/s/SvWgg9RZNEaXHls) (31MB) and [visualsem-image-features.test.CLIP-RN50x4.npz](https://surfdrive.surf.nl/files/index.php/s/pRsiPCuDLpUxmmZ) (31MB): CLIP features for all images in validation/test splits.
 
 
-After you download the data (`nodes.v2.json`, `tuples.v2.json`, `glosses.v2.tgz`, `images.tar`, `glosses.sentencebert.v2.tgz`, `images_features_splits.tgz`, `visualsem-image-features.valid.CLIP-RN50x4.npz`, `visualsem-image-features.test.CLIP-RN50x4.npz`), make sure all these files are available in `./dataset`. Untar the (compressed) tarballs as indicated below.
+下载这些数据集之后 (`nodes.v2.json`, `tuples.v2.json`, `glosses.v2.tgz`, `images.tar`, `glosses.sentencebert.v2.tgz`, `images_features_splits.tgz`, `visualsem-image-features.valid.CLIP-RN50x4.npz`, `visualsem-image-features.test.CLIP-RN50x4.npz`), 
+把它们放到目录`./dataset`下. 按照下面的方法解开（压缩的）tarballs。
 
     mkdir ./dataset && cd ./dataset
     tar zxvf glosses.v2.tgz
@@ -43,9 +44,7 @@ Use python 3 (we use python 3.7) and install the required packages.
     pip install -r requirements.txt
 
 ## Retrieval
-
-We release a multi-modal retrieval framework that allows one to retrieve nodes from the KG given sentences or images.
-
+我们发布了一个多模态检索框架，允许人们从KG给定的句子或图像中检索节点。
 
 ### Sentence retrieval
 
