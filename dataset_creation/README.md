@@ -1,8 +1,8 @@
-# Creating VisualSem from scratch
+# 从头创建 VisualSem
 This code is ported from [Houda Alberts](https://github.com/houda96/VisualSem/tree/master/dataset_creation) master thesis work.
 
 ## Disclaimer
-Creating VisualSem is a time-consuming process; it can take up to a few days to download and process all the nodes, edges, and images. Moreover, image files take up TBs of memory. Please make sure you have the needed space available.
+创建VisualSem是一个耗时的过程；下载和处理所有节点、边和图像可能需要几天时间。此外，图像文件会占用TB级的内存。请确保你有足够的空间。
 
 ## Usage
 
@@ -15,31 +15,30 @@ Create an Python 3.6 environment and install `requirements.txt`.
 
 Before you start, also make sure:
 
-- You create the data subdirectory: `mkdir ./data`
-- Create subdirectory where to download images: `mkdir ./data/visualsem_images`.
+- 你创建了数据子目录: `mkdir ./data`
+- 创建下载图像的子目录: `mkdir ./data/visualsem_images`.
 - Download [nodes_1000.json](https://surfdrive.surf.nl/files/index.php/s/8VrHn8TDPwqMiat) and store it in `./data`.
 
 ### Prerequisites
 To generate VisualSem from scratch, you must first create an account in the [BabelNet website](https://babelnet.org/) and download a local BabelNet index (we specifically use BabelNet v4.0). Please follow the instructions in the BabelNet website to how to download the index (if in doubt, you can [start here](https://babelnet.org/guide#HowcanIdownloadtheBabelNetindices?)).
 
-Please then follow [our guide](https://github.com/robindv/babelnet-api) on how to set up the local BabelNet index to be used to create VisualSem. By following the guide you will serve the index on port 8080 in the same local machine where you will run scripts below.
+然后请按照[我们的指南](https://github.com/robindv/babelnet-api)说明如何设置用于创建VisualSem的本地BabelNet索引。按照该指南，您将在运行以下脚本的同一台本地机器上为该索引提供服务，端口为8080。
 
-Besides having BabelNet configured, our pipeline also uses code ported from the [imagi-filter repository](https://github.com/houda96/imagi-filter) for filtering out noisy images. Run the following to download the weights of a ResNet-152 pretrained to filter noisy images.
+除了配置BabelNet之外，我们的pipeline还使用了从[imagi-filter repository](https://github.com/houda96/imagi-filter)移植的代码，用于过滤掉噪声图像。运行以下程序，下载经过预训练的ResNet-152的权重，以过滤噪声图像。
 
 - Download pretrained ResNet152 model [here](https://surfdrive.surf.nl/files/index.php/s/ipyfk9iJcWvZYYk).
 - Move the model checkpoint inside the `./data/` directory.
 
 ### Generating VisualSem
 
-You can call any script below with the `--help` flag to check what parameters can be changed. However, if you change any parameters you will need to manually find generated intermediate files and set the right path in further scripts when needed, since some files generated are used later in other scripts.
+你可以用`--help` flag调用下面的任何脚本，以检查哪些参数可以改变。然而，如果你改变了任何参数，你将需要在需要的时候，在进一步的脚本中手动查找生成的中间文件并设置正确的路径，因为有些生成的文件后来会在其他脚本中使用。
 
-1. We start by extracting nodes. Please beware of possibly long runtimes.
+1. 我们从提取节点开始。请注意可能会有很长的运行时间。
 
 ```python
 python extract_nodes.py
 ```
-
-Optionally, you can set many flags when running `extract_nodes.py`.
+在运行`extract_nodes.py`时，你可以选择性地设置许多标志。
 
 ```python
 python extract_nodes.py
@@ -51,70 +50,64 @@ python extract_nodes.py
     --M num_iterations # number of iterations to run
     --placement location_babelnet_api # where BabelNet is running, by default "localhost:8080"
 ```
-
-2. Next, we create and save relations between nodes.
+2. 接下来，我们创建并保存节点之间的关系。
 
 ```python
 python store_edg_info.py
 ```
 
-3. We gather some additional images for the initial core nodes, which can be extended if more nodes must have images.
+3. 我们为最初的核心节点收集一些额外的图像，如果更多的节点必须有图像，可以扩展。
 
 ```python
 python google_download.py
     --images_folder data/visualsem_images
     --initial_node_file data/nodes_1000.json
 ```
-
-4. Since we are dealing with many images, we first partition the images in chunks to be able to either run things in parallel or have in between breaks.
+4. 由于我们要处理许多图像，我们首先将图像分成几块，以便能够平行运行或有中间休息。
 
 ```python
 python image_urls.py
 ```
 
-5. We use [aria2](https://aria2.github.io/) via the command-line to download images. These parameters have been optimized for our devices, please ensure that this is also suitable for the specs on your device.
+5. 我们通过命令行使用[aria2](https://aria2.github.io/)来下载图片。这些参数已经为我们的设备进行了优化，请确保这也适合你设备上的规格。
 
 ```
 aria2c -i data/urls_file -x 16 -j 48 -t 5 --disable-ipv6 --connect-timeout=5
 ```
 
-6. We then hash images to remove duplicates.
+6. 然后我们对图像进行hashing，以去除重复的图像。
 
 ```python
 python hash_exist_images.py
 ```
 
-7. We fix invalid image types to correct ones.
+7. 我们将无效的图像类型修正为正确的类型。
 
 ```
 bash convert.sh data/visualsem_images/*
 ```
 
-8. We resize images to reduce disk space.
+8. 我们调整图像大小以减少磁盘空间。
 
 ```python
 python resizing.py --images_folder data/visualsem_images/*
 ```
-
-9. A first filtering is done by checking whether image files are correctly formatted; i.e. this step filters out ill-formatted image files.
+9. 第一次过滤是通过检查图像文件的格式是否正确来完成的；也就是说，这一步可以过滤掉格式不正确的图像文件。
 
 ```python
 python list_good_bad_files.py --images_folder data/visualsem_images
 ```
-
-10. This step classifies images as being useful or not and ouputs JSON files for later filtering. The parser can take many arguments here. *NOTE: This part follows [imagi-filter](https://github.com/houda96/imagi-filter) as explained above*
+10. 这一步将图像分类为有用或没用，并输出JSON文件供以后过滤。解析器在这里可以接受许多参数。*注意：这部分遵循上面解释的[imagi-filter](https://github.com/houda96/imagi-filter)*。
 
 ```python
 python forward_pass.py --img_store data/visualsem_images
 ```
-
-11. Now we filter out images that are not useful; we do not remove them, but simply do not keep them in the information system itself so that non-informative images can be inspected if necessary.
+11. 现在，我们过滤掉那些没有用的图像；我们不删除它们，只是不把它们保留在信息系统本身中，以便必要时可以检查非信息性的图像。
 
 ```python
 python filter_images.py
 ```
-
-You can optionally run this file setting the paths of the different files, if you have called scripts with non-default parameters before:
+如果你以前调用过非默认参数的脚本，你可以选择性地运行这个文件，设置不同文件的路径。
 
 ```python
 python filter_images.py
@@ -127,4 +120,4 @@ python filter_images.py
     --edges_file /path/to/output/edges
 ```
 
-After running these scripts, you will have generated the set of nodes in `./data/nodes.json`, the set of edges/tuples in `./data/tuples.json`, and the set of images associated to nodes in `./data/visualsem_images`.
+运行这些脚本后，你将生成`./data/nodes.json`中的节点集，`./data/tuples.json`中的边/元祖集，以及`./data/visualsem_images`中与节点相关的图像集。

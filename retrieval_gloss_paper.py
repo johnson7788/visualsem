@@ -13,7 +13,6 @@ from itertools import zip_longest
 from utils import grouper, load_sentences, load_bnids, load_visualsem_bnids
 import torchmetrics
 
-
 def retrieve_nodes_given_sentences(out_fname, batch_size, mapping_bnids_idxs_to_gloss_idxs, glosses_feats, query_bnids_idxs_for_each_gloss, query_feats, topk, bnids_idxs_for_each_gloss, gloss_bnids, query_languages):
     """
         out_fname(str):                     Output file to write retrieved node ids to.
@@ -128,27 +127,26 @@ if __name__=="__main__":
 
     p = argparse.ArgumentParser()
     g = p.add_argument_group()
-    g.add_argument('--input_valid', action='store_true',
-            help="""Perform retrieval for the glosses in the validation set. (See paper for reference)""")
-    g.add_argument('--input_test', action='store_true',
-            help="""Perform retrieval for the glosses in the test set. (See paper for reference)""")
-    p.add_argument('--topk', type=int, default=1, help="Retrieve topk nodes for each input sentence.")
+    g.add_argument('--input_valid', action='store_true',help="""对验证集中的词汇进行检索。(参考文献见论文)""")
+    g.add_argument('--input_test', action='store_true', help="""Perform retrieval for the glosses in the test set. (See paper for reference)""")
+    p.add_argument('--topk', type=int, default=1, help="检索每个输入句子的topk节点。")
     p.add_argument('--batch_size', type=int, default=128)
     p.add_argument('--visualsem_path', type=str, default=visualsem_path,
-            help="Path to directory containing VisualSem knowledge graph.")
+            help="包含VisualSem知识图谱的目录的路径。")
     p.add_argument('--visualsem_nodes_path', type=str, default=visualsem_nodes_path,
-            help="Path to file containing VisualSem nodes.")
+            help="包含 VisualSem 节点的文件的路径。")
     p.add_argument('--visualsem_images_path', type=str, default=visualsem_images_path,
-            help="Path to directory containing VisualSem images.")
+            help="包含VisualSem图像的目录的路径。")
     p.add_argument('--glosses_sentence_bert_path', type=str, default=glosses_sentence_bert_path,
-            help="""HDF5 file containing glosses index computed with Sentence BERT (computed with `extract_glosses_visualsem.py`).""")
+            help="""HDF5文件包含用句子BERT计算的词汇索引（用`extract_glosses_visualsem.py`计算）。""")
     p.add_argument('--glosses_bnids_path', type=str, default=glosses_bnids_path,
-            help="""Text file containing glosses BabelNet ids, one per line (computed with `extract_glosses_visualsem.py`).""")
+            help="""包含词汇的文本文件 BabelNet ids，每行一个 (computed with `extract_glosses_visualsem.py`).""")
     args = p.parse_args()
 
-    assert(torch.cuda.is_available()), "Must have at least one GPU available."
+    assert(torch.cuda.is_available()), "至少有一个GPU可用"
 
     if not args.input_valid and not args.input_test:
+        print(f"至少包含input_valid和input_test参数")
         p.print_usage()
         sys.exit(1)
 
