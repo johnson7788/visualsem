@@ -134,6 +134,18 @@ CLIP有一个双编码器架构，有一个文本和一个图像编码器。
     python visualsem_dataset_tuples.py
 
 
+# 数据
+```python
+dataset/nodes.v2.json， 包含88325条数据
+每条数据：
+
+'bn:00073045n' # 这个是BabelNet ID
+ 'gl' = {list: 4} ['A portable heating appliance used to warm an area or room.', 'Heater consisting of a self-contained (usually portable) unit to warm a room', 'A space heater is a device used to heat a single, small area.', 'A device used to heat spaces, typically interio
+ 'ms' = {str} 'WN:EN:space_heater'
+ 'se' = {list: 3} ['Space_heating', 'Spaceheater', 'space_heater']
+ 'ims' = {list: 3} ['e525636a309e03478d28abad5f77c8a9878a51f7', '64e5d4fc9cfbb92af01580a70821b20ad0e36d2d', '630013f63c548860fe8ed76564ed0b040c32124c']
+```
+
 ## License
 
 VisualSem is publicly available for research and is released under [BabelNet's non-commercial license](https://babelnet.org/license).

@@ -97,28 +97,27 @@ if __name__=="__main__":
 
     p = argparse.ArgumentParser()
     p.add_argument('--input_files', type=str, nargs="+", default=["example_data/queries.txt"],
-            help="""Input file(s) to use for retrieval. Each line in each file should contain a detokenized sentence.""")
-    p.add_argument('--topk', type=int, default=1, help="Retrieve topk nodes for each input sentence.")
+            help="""检索时使用的输入文件。每个文件中的每一行都应包含一个deftokenized的句子。""")
+    p.add_argument('--topk', type=int, default=1, help="检索每个输入句子的topk节点。")
     p.add_argument('--batch_size', type=int, default=1000)
-    p.add_argument('--visualsem_path', type=str, default=visualsem_path,
-            help="Path to directory containing VisualSem knowledge graph.")
-    p.add_argument('--visualsem_nodes_path', type=str, default=visualsem_nodes_path,
-            help="Path to file containing VisualSem nodes.")
-    p.add_argument('--visualsem_images_path', type=str, default=visualsem_images_path,
-            help="Path to directory containing VisualSem images.")
+    p.add_argument('--visualsem_path', type=str, default=visualsem_path,help="包含VisualSem知识图谱的目录的路径。")
+    p.add_argument('--visualsem_nodes_path', type=str, default=visualsem_nodes_path,help="包含 VisualSem 节点的文件的路径。")
+    p.add_argument('--visualsem_images_path', type=str, default=visualsem_images_path,help="包含VisualSem图像的目录的路径。")
     p.add_argument('--glosses_sentence_bert_path', type=str, default=glosses_sentence_bert_path,
-            help="""HDF5 file containing glosses index computed with Sentence BERT (computed with `extract_glosses_visualsem.py`).""")
+            help="""包含用句子BERT计算的词汇索引的HDF5文件 (computed with `extract_glosses_visualsem.py`).""")
     p.add_argument('--glosses_bnids_path', type=str, default=glosses_bnids_path,
-            help="""Text file containing glosses BabelNet ids, one per line (computed with `extract_glosses_visualsem.py`).""")
+            help="""包含词汇的文本文件 BabelNet ids，每行 (computed with `extract_glosses_visualsem.py`).""")
     p.add_argument('--input_valid', action='store_true',
             help="""Perform retrieval for the glosses in the validation set. (See paper for reference)""")
     p.add_argument('--input_test', action='store_true',
             help="""Perform retrieval for the glosses in the test set. (See paper for reference)""")
     args = p.parse_args()
 
-    # load all nodes in VisualSem
+    # 加载VisualSem数据集中的所有节点， #all_bnids是所有的BabelNet ID
     all_bnids = load_visualsem_bnids(args.visualsem_nodes_path, args.visualsem_images_path)
-    gloss_bnids = load_bnids( args.glosses_bnids_path )
+    #
+    gloss_bnids = load_bnids(args.glosses_bnids_path)
+    #
     gloss_bnids = numpy.array(gloss_bnids, dtype='object')
 
     with h5py.File(args.glosses_sentence_bert_path, 'r') as fh_glosses:

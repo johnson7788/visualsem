@@ -32,32 +32,44 @@ def load_bnids(fname):
 
 
 def load_visualsem_bnids(visualsem_nodes_path, visualsem_images_path=None):
-    x = json.load(open( visualsem_nodes_path, 'r' ))
+    """
+
+    :param visualsem_nodes_path:  'dataset/nodes.v2.json'
+    :type visualsem_nodes_path:
+    :param visualsem_images_path:   'dataset/images/'
+    :type visualsem_images_path:
+    :return:
+    :rtype:
+    """
+    x = json.load(open(visualsem_nodes_path, 'r' ))
     ims = []
+    # 保存每个图片的绝对路径
     bn_to_ims = defaultdict(list)
 
     def get_full_img_name(im):
-        """ Closure to give full path to image given image name. """
+        """根据图像的md5名称，拼出图像的完整路径, """
+        # im: 'e525636a309e03478d28abad5f77c8a9878a51f7'
         if not visualsem_images_path is None:
             fname = os.path.join(visualsem_images_path, im[:2], im+".jpg")
         else:
             fname = os.path.join(im[:2], im+".jpg")
+        # 'visualsem/dataset/images/e5/e525636a309e03478d28abad5f77c8a9878a51f7.jpg'
         return fname 
-
+    # 根据图像的md5,获取图片的名称，保存到列表中
     for bid, v in x.items():
         for im in v['ims']:
             bn_to_ims[bid].append( get_full_img_name(im) )
 
-    # sort entries by BabelNet ID
+    #根据 BabelNet ID排序实体
     full_bnids_to_ims = [(bid,ims) for bid,ims in sorted(bn_to_ims.items(), key = lambda kv: kv[0])]
-    print("Total number of BabelNet IDs in VisualSem: %i.\nTotal number of image-node associations: %i.\nMaximum number of images linked to a node: %i."%(
+    print("VisualSem中的BabelNet ID总数: %i.\n图像-节点关联的总数: %i.\n链接到一个节点的最大图像数: %i."%(
         len(full_bnids_to_ims),
         sum([len(v) for (k,v) in full_bnids_to_ims]),
         max([len(v) for (k,v) in full_bnids_to_ims])
     ))
-    #print("First 5 BabelNet IDs: ", [bnid for (bnid,ims) in full_bnids_to_ims[:5]], "...")
-
-    return [bnids for bnids,_ in full_bnids_to_ims]
+    print("前5条BabelNet IDs数据: ", [bnid for (bnid,ims) in full_bnids_to_ims[:5]], "...")
+    all_bnids = [bnids for bnids,_ in full_bnids_to_ims]
+    return all_bnids
 
 
 def test_queries(emb_sentences, all_sentences, model):
