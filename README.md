@@ -30,7 +30,7 @@ VisualSem对研究人员来说是公开的、完全可用的，并以[BabelNet�
 把它们放到目录`./dataset`下. 按照下面的方法解开（压缩的）tarballs。
 
     mkdir ./dataset && cd ./dataset
-    tar zxvf glosses.v2.tgz
+    tar zxvf glosses.v2.tgz  # 里面是不同语言的注释
     tar zxvf glosses.sentencebert.v2.tgz
     tar zxvf images_features_splits.tgz
     tar xvf images.tgz
