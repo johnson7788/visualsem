@@ -43,7 +43,8 @@ if __name__=="__main__":
     dir_path    = os.path.dirname(os.path.realpath(__file__))
     tuples_json  = os.path.join(dir_path, "dataset", "tuples.v2.json")
     # testing tuples dataset
-    print("Testing tuple dataset...")
+    print("测试三元组数据集...")
     vs = VisualSemTuplesDataset(tuples_json)
-    print("len(vs): ", len(vs))
+    print("共收集三元组数据对: ", len(vs))
+    print(f"第一个三元组对的信息是: ")
     print(vs[0])

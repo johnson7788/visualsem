@@ -8,7 +8,7 @@ VisualSem是一种多语言、多模态的知识图谱，旨在支持视觉和�
 - 13 _visually relevant_ relation types: _is-a_, _has-part_, _related-to_, _used-for_, _used-by_, _subject-of_, _receives-action_, _made-of_, _has-property_, _gloss-related_, _synonym_, _part-of_, and _located-at_.
 - 1.5M tuples, 其中每个元组由一对由关系类型连接的节点组成。
 - 1.3M 词汇链接到节点，有多达14种不同的语言版本。
-- 930k images associated to nodes.
+- 930k 张图片链接到节点
 
 
 ## 下载 VisualSem
@@ -17,7 +17,7 @@ VisualSem对研究人员来说是公开的、完全可用的，并以[BabelNet�
 
 - [nodes.v2.json](https://surfdrive.surf.nl/files/index.php/s/06AFB1LsJV9yt5N) (83MB): All nodes in VisualSem.
 - [tuples.v2.json](https://surfdrive.surf.nl/files/index.php/s/P37QRCWDJVRqcWG) (83MB): All tuples in VisualSem.
-- [glosses.v2.tgz](https://surfdrive.surf.nl/files/index.php/s/gQLULr5ElOEiafx) (125MB): All 1.5M glosses in 14 different languages.
+- [glosses.v2.tgz](https://surfdrive.surf.nl/files/index.php/s/gQLULr5ElOEiafx) (125MB): All 1.5M glosses in 14 different languages., gloss 是注释的意思
 - [images.tgz](https://surfdrive.surf.nl/files/index.php/s/KXmZTm4hNaXoYfO) (31GB): All 1.5M images.
 
 除了数据集文件外，你还可以下载预先提取的特征（用于检索实验）。
@@ -43,7 +43,7 @@ VisualSem对研究人员来说是公开的、完全可用的，并以[BabelNet�
 ## Retrieval
 我们发布了一个多模态检索框架，允许人们从KG给定的句子或图像中检索节点。
 
-### Sentence retrieval
+### 句子检索，句子检索图片
 在我们的句子检索模型中，我们使用[Sentence BERT](https://github.com/UKPLab/sentence-transformers)（SBERT）作为多语言编码器。我们使用SBERT对VisualSem中的所有词汇进行编码，同时也对查询进行编码。检索是通过k-NN实现的，我们计算代表输入句子的query向量和节点的词汇矩阵之间的点乘。我们直接检索与最相关词汇相关的前k个唯一节点作为结果。
 conda install -c conda-forge sentence-transformers
 
@@ -54,12 +54,12 @@ conda install -c conda-forge sentence-transformers
 
 如果你的VisualSem文件在非标准目录下，运行`python retrieval_gloss_paper.py --help`可以看到用来提供其位置的参数。
 
-#### 检索任意句子的节点
+#### 检索任意句子的节点, 根据句子意思检索对应的图片
 
-假设文件`/path/to/queries.txt`每行包含一个由多个查询组成的（detokenized）英文句子，通过运行下面的`retrieval_gloss.py`，
-你将生成`/path/to/queries.txt.bnids`与检索的节点。生成的文件包含检索到的节点（即BNid）和它们的分数（即与查询的余弦相似度）。你可以通过运行VisualSem为每个查询检索节点。
+假设文件`example_data/queries.txt`每行包含一个由多个查询组成的（detokenized）英文句子，通过运行下面的`retrieval_gloss.py`，
+你将生成`example_data/queries.txt.bnids`与检索的节点。生成的文件包含检索到的节点（即BNid）和它们的分数（即与查询的余弦相似度）。你可以通过运行VisualSem为每个查询检索节点。
 
-    python retrieval_gloss.py --input_file /path/to/queries.txt
+    python retrieval_gloss.py --input_file example_data/queries.txt
 
 你也可以不使用任何标志直接运行该脚本，在这种情况下，它使用`example_data/queries.txt`下的例句查询。
 
@@ -82,12 +82,28 @@ conda install -c conda-forge sentence-transformers
 
 上述命令将使用8种表现最好的语言（根据我们论文中的实验）的词汇建立索引，而不是所有14种支持的语言。然后根据单词表与`queries.txt`中每个查询的相似度对单词表进行排序，并检索相关的节点。在其他选项中，你可以设置为每个句子检索的节点数量（`-topk`参数）。
 
-### Image retrieval
+检索结果：
+内容是：Sports are really important for kids, specially team sports that help develop character and social skills.
+        体育对孩子们来说真的很重要，特别是有助于培养性格和社会技能的团队运动。
+        对应的图片是: ['../dataset/images/cd/cdb634bba159ffe1cee5eadcad921619ff8d9130.jpg']
+        queriy_image_result/cdb634bba159ffe1cee5eadcad921619ff8d9130.jpg
+
+内容是：Changing the file permissions of multiple files through Unix terminal. 通过Unix终端改变多个文件的权限。
+本地图片名字是: 找到的是Unix的创始人
+queriy_image_result/3796d117cb02e49f3e8da36da2cae9c217304d6f.jpg
+queriy_image_result/495989a6e07f8c9367ad53513b35faeed5c57206.jpg
+
+内容是：a commercial airliner flies on a clear bright blue sky day.   一架商业客机在一个晴朗的蓝天下飞行。
+本地图片名字前2张是:
+queriy_image_result/bb087bde05fb6926736a22dd378a101d88f0dd39.jpg
+queriy_image_result/3c8dd1df86e69fc217112460568ecfbe897348ad.jpg
+
+### 图谱检索
 
 我们使用[Open AI的CLIP]（https://github.com/openai/CLIP）作为我们的图像检索模型。
 CLIP有一个双编码器架构，有一个文本和一个图像编码器。
 我们用CLIP的文本编码器对VisualSem中的所有英文词汇进行编码，我们用CLIP的图像编码器对我们用来查询KG的图像进行编码。检索再次以k-NN方式实现，我们计算代表输入图像的query向量和节点的gloss矩阵之间的点积。
-我们直接检索与最高得分的glosses相关的前k个唯一节点作为结果。
+我们直接检索与最高得分的注释语句相关的前k个唯一节点作为结果。
 
 #### 重现论文成果
 首先，如果你没有下载用CLIP提取的验证和测试图像特征（[visualsem-image-features.valid.CLIP-RN50x4.npz]（https://surfdrive.surf.nl/files/index.php/s/SvWgg9RZNEaXHls）和[visualsem-image-features.test.CLIP-RN50x4.npz]（https://surfdrive.surf.nl/files/index.php/s/pRsiPCuDLpUxmmZ）），运行以下脚本。
@@ -115,7 +131,7 @@ CLIP有一个双编码器架构，有一个文本和一个图像编码器。
 请参考数据集创建[README.md](dataset_creation/README.md)，了解如何从头生成VisualSem。
 
 ### 用你本地生成的VisualSem实现句子和图像检索
-如果你已经从头开始生成VisualSem，你将需要为你的版本中的当前节点集再次提取glosses。要做到这一点，只需运行。
+如果你已经从头开始生成VisualSem，你将需要为你的版本中的当前节点集再次提取注释语句。要做到这一点，只需运行。
 
     python extract_glosses_visualsem.py --extract_glosses --extract_glosses_languages
 
@@ -127,24 +143,37 @@ CLIP有一个双编码器架构，有一个文本和一个图像编码器。
 ## Example code
 关于如何在你的代码库中包含VisualSem的例子，请运行。
 
-    # iterate nodes and print all information available for each node (around 101k)
+    # 迭代节点并打印每个节点的所有可用信息（大约101k）。
     python visualsem_dataset_nodes.py
 
-    # iterate each tuple in the dataset (around 1.5M)
+    # 遍历数据集中的每个元组（大约1.5M）。
     python visualsem_dataset_tuples.py
 
 
 # 数据
 ```python
-dataset/nodes.v2.json， 包含88325条数据
+dataset/nodes.v2.json， 包含88325条数据, 近9万个实体
 每条数据：
 
-'bn:00073045n' # 这个是BabelNet ID
+'bn:00073045n' # 这个是BabelNet ID， BabelNet ID可以作为节点的id，gl是gloss的缩写，就是注释语句的意思, ms是实体的名字，EN是表示英文，WN表示来源， se表示别名， ims表示对应的图片
  'gl' = {list: 4} ['A portable heating appliance used to warm an area or room.', 'Heater consisting of a self-contained (usually portable) unit to warm a room', 'A space heater is a device used to heat a single, small area.', 'A device used to heat spaces, typically interio
  'ms' = {str} 'WN:EN:space_heater'
  'se' = {list: 3} ['Space_heating', 'Spaceheater', 'space_heater']
  'ims' = {list: 3} ['e525636a309e03478d28abad5f77c8a9878a51f7', '64e5d4fc9cfbb92af01580a70821b20ad0e36d2d', '630013f63c548860fe8ed76564ed0b040c32124c']
 ```
+
+dataset/tuples.v2.json， 包含88325条数据, 每个节点于其它节点的关系， 接近148万个关系
+'bn:00046576n' = {list: 371} #字典的key bn:00046576n表示尾实体
+ 000 = {dict: 3} {'s': 'bn:03760212n', 'r': 'RelatedTo', 'r_id': 133}  # s表示头实体，r表示关系, r_id表示一个三元组id
+ 001 = {dict: 3} {'s': 'bn:03237118n', 'r': 'RelatedTo', 'r_id': 209}
+ 002 = {dict: 3} {'s': 'bn:02057488n', 'r': 'RelatedTo', 'r_id': 352}
+ 003 = {dict: 3} {'s': 'bn:00013153n', 'r': 'RelatedTo', 'r_id': 146}
+ 004 = {dict: 3} {'s': 'bn:00076121n', 'r': 'RelatedTo', 'r_id': 324}
+
+dataset/gloss_files/nodes.glosses.json, 对应的注释，每条数据是一个字典，包含英文和sv这种语言
+'bn:00073045n' = {dict: 2} 
+'en' = {list: 4} ['Heater consisting of a self-contained (usually portable) unit to warm a room', 'A space heater is a device used to heat a single, small area.', 'A device used to heat spaces, typically interior spaces', 'A portable heating appliance used to warm an area 
+'sv' = {list: 2} ['Byggnadsuppvärmning, lokaluppvärmning eller bara uppvärmning syftar till att hålla inomhusluftens temperatur tillräckligt hög.', 'Att hålla inomhusluftens temperatur tillräckligt hög']
 
 ## License
 

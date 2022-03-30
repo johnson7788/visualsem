@@ -25,10 +25,10 @@ class VisualSemNodesDataset(torch.utils.data.Dataset):
         assert(os.path.isfile( path_to_tuples )), "File not found: %s"%path_to_tuples
         assert(os.path.isfile( path_to_glosses )), "File not found: %s"%path_to_glosses
         assert( path_to_images is None or os.path.isfile( path_to_images )), "File not found: %s"%path_to_images
-
+        #所有的bn的id
         bnids = load_visualsem_bnids(path_to_nodes, path_to_images)
-
         self.nodes = {}
+        # 遍历所有节点，'visualsem/dataset/nodes.v2.json'
         with open(path_to_nodes, 'r') as fh:
             nodes_json = json.load(fh)
             for node_key, node_value in nodes_json.items():
@@ -38,13 +38,13 @@ class VisualSemNodesDataset(torch.utils.data.Dataset):
                     "se" : node_value['se'],
                     "images": node_value["ims"],
                 }
-
+        # 三元组数据
         with open(path_to_tuples, 'r') as fh:
             tuples_json = json.load(fh)
             for tuple_key, tuple_value in tuples_json.items():
                 if not "incoming_nodes" in self.nodes[ tuple_key ]:
                     self.nodes[ tuple_key ][ "incoming_nodes" ] = []
-
+                # tuple_key: 'bn:00046576n'
                 for entry in tuple_value:
                     self.nodes[ tuple_key ][ "incoming_nodes" ].append({
                         "head" : entry['s'],
@@ -75,8 +75,9 @@ if __name__=="__main__":
     glosses_json = os.path.join(dir_path, "dataset", "gloss_files", "nodes.glosses.json")
     tuples_json  = os.path.join(dir_path, "dataset", "tuples.v2.json")
     # testing node dataset
-    print("Testing node dataset...")
+    print("测试节点数据集...")
     vs = VisualSemNodesDataset(nodes_json, glosses_json, tuples_json)
-    print("len(vs): ", len(vs))
+    print("共获取节点个数: ", len(vs))
+    print("打印第一个节点信息: ")
     print(vs[0])
 
